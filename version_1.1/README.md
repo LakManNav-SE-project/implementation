@@ -34,3 +34,5 @@ Commited by Navyashee J
 * *Data Persistence:* Uses localStorage to save data across browser sessions for *users, **students, **attendance, and **notifications*. This makes the prototype fully functional without a backend server.
 * *Security:* Authentication is handled client-side against the stored users array. *Note:* Passwords are not hashed in this basic version.
 * *User Roles:* The system supports *Teacher, Administrator, Parent, and Student* roles, though the current view primarily caters to the Teacher/Admin role.
+
+Commited by : Navyashree J
