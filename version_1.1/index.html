@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMS - Complete System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; }
+        
+        /* Login */
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .login-box { background: white; padding: 40px; border-radius: 16px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-box h1 { text-align: center; color: #4f46e5; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4f46e5; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-success { background: #10b981; color: white; margin-top: 10px; }
+        .btn-secondary { background: white; color: #4f46e5; border: 2px solid #4f46e5; }
+        .demo-box { margin-top: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; font-size: 13px; }
+        .link-btn { text-align: center; margin-top: 15px; color: #4f46e5; cursor: pointer; font-weight: 600; }
+        
+        /* App */
+        .app-screen { display: none; min-height: 100vh; flex-direction: column; }
+        .app-screen.active { display: flex; }
+        .header { background: white; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 2px solid #e2e8f0; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .app-title { font-size: 24px; font-weight: 700; color: #4f46e5; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .user-badge { background: #4f46e5; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; }
+        .btn-logout { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        
+        .main-layout { display: flex; flex: 1; }
+        .sidebar { width: 250px; background: white; border-right: 2px solid #e2e8f0; padding: 20px 0; }
+        .nav-item { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #64748b; }
+        .nav-item:hover { background: #f1f5f9; color: #4f46e5; }
+        .nav-item.active { background: #f1f5f9; color: #4f46e5; border-left: 3px solid #4f46e5; font-weight: 600; }
+        
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 20px; }
+        .stat-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; }
+        .stat-icon.present { background: #10b981; }
+        .stat-icon.absent { background: #ef4444; }
+        .stat-icon.total { background: #4f46e5; }
+        .stat-icon.percent { background: #f59e0b; }
+        .stat-info h3 { font-size: 32px; margin-bottom: 5px; }
+        .stat-info p { color: #64748b; font-size: 14px; }
+        
+        .action-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-action { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .btn-action.primary { background: #4f46e5; color: white; }
+        .btn-action.secondary { background: white; color: #4f46e5; border: 2px solid #4f46e5; }
+        
+        .table-box { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #64748b; }
+        tbody tr:hover { background: #f8fafc; }
+        .status-present { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .status-absent { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px; border-bottom: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 20px; border-top: 2px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
+        
+        .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid #4f46e5; display: flex; align-items: center; gap: 12px; z-index: 1001; animation: slideIn 0.3s; }
+        .toast.success { border-left-color: #10b981; }
+        .toast.error { border-left-color: #ef4444; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .hidden { display: none !important; }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: fixed; left: -100%; transition: left 0.3s; z-index: 99; bottom: 0; top: 70px; }
+            .sidebar.active { left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <h1><i class="fas fa-graduation-cap"></i> SAMS</h1>
+            <div id="loginFormDiv">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="loginRole">
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Administrator</option>
+                        <option value="parent">Parent</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div class="demo-box">
+                    <strong>Demo Credentials:</strong>
+                    Username: <code>teacher</code> / <code>admin</code><br>
+                    Password: <code>demo123</code>
+                </div>
+                <div class="link-btn" onclick="showRegister()">
+                    Don't have an account? Register here
+                </div>
+            </div>
+            
+            <div id="registerFormDiv" class="hidden">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="regUsername" placeholder="Choose username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Choose password">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="regRole">
+                        <option value="teacher">Teacher</option>
+                        <option value="student">Student</option>
+                        <option value="parent">Parent</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" onclick="register()">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                <div class="link-btn" onclick="showLogin()">
+                    Already have an account? Login here
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Screen -->
+    <div id="appScreen" class="app-screen">
+        <div class="header">
+            <div class="header-left">
+                <button class="btn-icon" onclick="toggleSidebar()" style="background: none;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="app-title">SAMS</div>
+            </div>
+            <div class="header-right">
+                <span class="user-badge" id="userRole">Teacher</span>
+                <span id="userName">John Doe</span>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="sidebar" id="sidebar">
+                <div class="nav-item active" onclick="showPage('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </div>
+                <div class="nav-item" onclick="showPage('attendance')">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </div>
+                <div class="nav-item" onclick="showPage('students')">
+                    <i class="fas fa-users"></i> Students
+                </div>
+                <div class="nav-item" onclick="showPage('reports')">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </div>
+                <div class="nav-item" onclick="showPage('users')">
+                    <i class="fas fa-user-cog"></i> User Management
+                </div>
+                <div class="nav-item" onclick="showPage('notifications')">
+                    <i class="fas fa-bell"></i> Notifications
+                </div>
+            </div>
+
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <h2 style="margin-bottom: 10px;">Dashboard</h2>
+                    <p style="color: #64748b; margin-bottom: 25px;">Today: <span id="currentDate"></span></p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon present"><i class="fas fa-user-check"></i></div>
+                            <div class="stat-info">
+                                <h3 id="presentCount">0</h3>
+                                <p>Present Today</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon absent"><i class="fas fa-user-times"></i></div>
+                            <div class="stat-info">
+                                <h3 id="absentCount">0</h3>
+                                <p>Absent Today</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon total"><i class="fas fa-users"></i></div>
+                            <div class="stat-info">
+                                <h3 id="totalStudents">0</h3>
+                                <p>Total Students</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon percent"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-info">
+                                <h3 id="attendancePercent">0%</h3>
+                                <p>Attendance Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Page -->
+                <div id="attendancePage" class="page">
+                    <h2 style="margin-bottom: 25px;">Attendance Management</h2>
+                    <div class="action-bar">
+                        <button class="btn-action primary" onclick="openMarkAttendance()">
+                            <i class="fas fa-plus"></i> Mark Attendance
+                        </button>
+                        <button class="btn-action secondary" onclick="openBulkAttendance()">
+                            <i class="fas fa-upload"></i> Bulk Upload
+                        </button>
+                    </div>
+                    <div class="table-box">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Students Page -->
+                <div id="studentsPage" class="page">
+                    <h2 style="margin-bottom: 25px;">Student Management</h2>
+                    <div class="action-bar">
+                        <button class="btn-action primary" onclick="openAddStudent()">
+                            <i class="fas fa-plus"></i> Add Student
+                        </button>
+                    </div>
+                    <div class="table-box">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reportsPage" class="page">
+                    <h2 style="margin-bottom: 25px;">Reports & Analytics</h2>
+                    <div class="action-bar">
+                        <button class="btn-action primary" onclick="generateReport()">
+                            <i class="fas fa-download"></i> Generate Report
+                        </button>
+                        <button class="btn-action secondary" onclick="exportData()">
+                            <i class="fas fa-file-export"></i> Export CSV
+                        </button>
+                    </div>
+                    <div class="table-box">
+                        <h3 style="padding: 20px; border-bottom: 2px solid #e2e8f0;">Weekly Summary</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Total</th>
+                                    <th>Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users Page -->
+                <div id="usersPage" class="page">
+                    <h2 style="margin-bottom: 25px;">User Management</h2>
+                    <div class="action-bar">
+                        <button class="btn-action primary" onclick="openAddUser()">
+                            <i class="fas fa-user-plus"></i> Add New User
+                        </button>
+                    </div>
+                    <div class="table-box">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Notifications Page -->
+                <div id="notificationsPage" class="page">
+                    <h2 style="margin-bottom: 25px;">Notifications</h2>
+                    <div class="action-bar">
+                        <button class="btn-action primary" onclick="openSendNotification()">
+                            <i class="fas fa-paper-plane"></i> Send Notification
+                        </button>
+                    </div>
+                    <div class="table-box">
+                        <div id="notificationsList" style="padding: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Student</h3>
+                <button class="btn-icon" onclick="closeModal('addStudentModal')" style="background: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input type="text" id="studentName" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <input type="text" id="studentClass" placeholder="e.g., 5A">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="studentEmail" placeholder="student@school.edu">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+                <button class="btn-action primary" onclick="saveStudent()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <button class="btn-icon" onclick="closeModal('addUserModal')" style="background: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="newUserName" placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="newUserEmail" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="newUserUsername" placeholder="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="newUserPassword" placeholder="password">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="newUserRole">
+                        <option value="teacher">Teacher</option>
+                        <option value="admin">Administrator</option>
+                        <option value="parent">Parent</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action secondary" onclick="closeModal('addUserModal')">Cancel</button>
+                <button class="btn-action primary" onclick="saveUser()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mark Attendance Modal -->
+    <div id="markAttendanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Mark Attendance</h3>
+                <button class="btn-icon" onclick="closeModal('markAttendanceModal')" style="background: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select Students</label>
+                    <select id="attendanceStudents" multiple style="height: 150px;">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="attendanceDate">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="attendanceStatus">
+                        <option value="present">Present</option>
+                        <option value="absent">Absent</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action secondary" onclick="closeModal('markAttendanceModal')">Cancel</button>
+                <button class="btn-action primary" onclick="saveAttendance()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Notification Modal -->
+    <div id="sendNotificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Notification</h3>
+                <button class="btn-icon" onclick="closeModal('sendNotificationModal')" style="background: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Recipients</label>
+                    <select id="notifRecipients">
+                        <option value="all">All Students & Parents</option>
+                        <option value="students">All Students</option>
+                        <option value="parents">All Parents</option>
+                        <option value="teachers">All Teachers</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="notifMessage" rows="4" placeholder="Enter your message..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action secondary" onclick="closeModal('sendNotificationModal')">Cancel</button>
+                <button class="btn-action primary" onclick="sendNotification()">
+                    <i class="fas fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let users = JSON.parse(localStorage.getItem('samsUsers')) || [
+            { id: 'u1', username: 'teacher', password: 'demo123', name: 'John Smith', email: 'john@school.edu', role: 'teacher' },
+            { id: 'u2', username: 'admin', password: 'demo123', name: 'Mary Johnson', email: 'mary@school.edu', role: 'admin' }
+        ];
+
+        let students = JSON.parse(localStorage.getItem('samsStudents')) || [
+            { id: 's1', name: 'Alice Brown', class: '5A', email: 'alice@school.edu' },
+            { id: 's2', name: 'Bob Johnson', class: '5A', email: 'bob@school.edu' },
+            { id: 's3', name: 'Carol Davis', class: '5B', email: 'carol@school.edu' },
+            { id: 's4', name: 'David Miller', class: '5B', email: 'david@school.edu' },
+            { id: 's5', name: 'Eva Wilson', class: '5A', email: 'eva@school.edu' }
+        ];
+
+        let attendance = JSON.parse(localStorage.getItem('samsAttendance')) || [];
+        let notifications = JSON.parse(localStorage.getItem('samsNotifications')) || [];
+        let currentUser = null;
+
+        // Initialize
+        function init() {
+            if (attendance.length === 0) {
+                initAttendanceData();
+            }
+            updateCurrentDate();
+            loadDashboard();
+        }
+
+        function initAttendanceData() {
+            const today = new Date().toISOString().split('T')[0];
+            students.forEach((student, i) => {
+                attendance.push({
+                    id: 'att_' + Date.now() + '_' + i,
+                    studentId: student.id,
+                    date: today,
+                    status: Math.random() > 0.2 ? 'present' : 'absent'
+                });
+            });
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem('samsUsers', JSON.stringify(users));
+            localStorage.setItem('samsStudents', JSON.stringify(students));
+            localStorage.setItem('samsAttendance', JSON.stringify(attendance));
+            localStorage.setItem('samsNotifications', JSON.stringify(notifications));
+        }
+
+        // Authentication
+        function showRegister() {
+            document.getElementById('loginFormDiv').classList.add('hidden');
+            document.getElementById('registerFormDiv').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('registerFormDiv').classList.add('hidden');
+            document.getElementById('loginFormDiv').classList.remove('hidden');
+        }
+
+        function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+
+            if (!name || !email || !username || !password) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            if (users.find(u => u.username === username)) {
+                showToast('Username already exists', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: 'u' + Date.now(),
+                username,
+                password,
+                name,
+                email,
+                role
+            };
+
+            users.push(newUser);
+            saveData();
+            showToast('Registration successful! Please login.', 'success');
+            showLogin();
+            
+            // Clear form
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regPassword').value = '';
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.getElementById('loginRole').value;
+
+            const user = users.find(u => u.username === username && u.password === password && u.role === role);
+
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appScreen').classList.add('active');
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('userRole').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                showToast('Welcome back, ' + user.name + '!', 'success');
+                loadDashboard();
+            } else {
+                showToast('Invalid credentials', 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('appScreen').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            showToast('Logged out successfully', 'success');
+        }
+
+        // Navigation
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageName + 'Page').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+
+            if (pageName === 'dashboard') loadDashboard();
+            else if (pageName === 'attendance') loadAttendance();
+            else if (pageName === 'students') loadStudents();
+            else if (pageName === 'reports') loadReports();
+            else if (pageName === 'users') loadUsers();
+            else if (pageName === 'notifications') loadNotifications();
+
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Dashboard
+        function loadDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayAttendance = attendance.filter(a => a.date === today);
+            
+            const present = todayAttendance.filter(a => a.status === 'present').length;
+            const absent = todayAttendance.filter(a => a.status === 'absent').length;
+            const total = students.length;
+            const percent = total > 0 ? Math.round((present / total) * 100) : 0;
+
+            document.getElementById('presentCount').textContent = present;
+            document.getElementById('absentCount').textContent = absent;
+            document.getElementById('totalStudents').textContent = total;
+            document.getElementById('attendancePercent').textContent = percent + '%';
+        }
+
+        function updateCurrentDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+        // Students
+        function loadStudents() {
+            const tbody = document.getElementById('studentsTable');
+            tbody.innerHTML = students.map(s => `
+                <tr>
+                    <td>${s.id}</td>
+                    <td>${s.name}</td>
+                    <td>${s.class}</td>
+                    <td>${s.email}</td>
+                    <td>
+                        <button class="btn-icon" onclick="editStudent('${s.id}')" title="Edit" style="background: #4f46e5; color: white; width: 35px; height: 35px; margin-right: 5px;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon" onclick="deleteStudent('${s.id}')" title="Delete" style="background: #ef4444; color: white; width: 35px; height: 35px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddStudent() {
+            document.getElementById('addStudentModal').classList.add('active');
+        }
+
+        function saveStudent() {
+            const name = document.getElementById('studentName').value;
+            const cls = document.getElementById('studentClass').value;
+            const email = document.getElementById('studentEmail').value;
+
+            if (!name || !cls || !email) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            const newStudent = {
+                id: 's' + Date.now(),
+                name,
+                class: cls,
+                email
+            };
+
+            students.push(newStudent);
+            saveData();
+            showToast('Student added successfully!', 'success');
+            closeModal('addStudentModal');
+            loadStudents();
+            loadDashboard();
+
+            // Clear form
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentClass').value = '';
+            document.getElementById('studentEmail').value = '';
+        }
+
+        function deleteStudent(id) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                students = students.filter(s => s.id !== id);
+                attendance = attendance.filter(a => a.studentId !== id);
+                saveData();
+                showToast('Student deleted', 'success');
+                loadStudents();
+                loadDashboard();
+            }
+        }
+
+        // Attendance
+        function loadAttendance() {
+            const tbody = document.getElementById('attendanceTable');
+            tbody.innerHTML = attendance.slice(0, 50).map(a => {
+                const student = students.find(s => s.id === a.studentId);
+                if (!student) return '';
+                return `
+                    <tr>
+                        <td>${a.studentId}</td>
+                        <td>${student.name}</td>
+                        <td>${student.class}</td>
+                        <td>${a.date}</td>
+                        <td><span class="status-${a.status}">${a.status}</span></td>
+                        <td>
+                            <button class="btn-icon" onclick="deleteAttendance('${a.id}')" title="Delete" style="background: #ef4444; color: white; width: 35px; height: 35px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openMarkAttendance() {
+            const select = document.getElementById('attendanceStudents');
+            select.innerHTML = students.map(s => 
+                `<option value="${s.id}">${s.name} (${s.class})</option>`
+            ).join('');
+            
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('attendanceDate');
+            dateInput.value = today;
+            dateInput.max = today; // Restrict to today and past dates only
+            
+            document.getElementById('markAttendanceModal').classList.add('active');
+        }
+
+        function saveAttendance() {
+            const selected = Array.from(document.getElementById('attendanceStudents').selectedOptions).map(o => o.value);
+            const date = document.getElementById('attendanceDate').value;
+            const status = document.getElementById('attendanceStatus').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (selected.length === 0) {
+                showToast('Please select at least one student', 'error');
+                return;
+            }
+
+            // Check if date is in future
+            if (date > today) {
+                showToast('Cannot mark attendance for future dates!', 'error');
+                return;
+            }
+
+            selected.forEach(studentId => {
+                // Check if already marked
+                const existing = attendance.find(a => a.studentId === studentId && a.date === date);
+                if (existing) {
+                    existing.status = status;
+                } else {
+                    attendance.push({
+                        id: 'att_' + Date.now() + '_' + Math.random(),
+                        studentId,
+                        date,
+                        status
+                    });
+                }
+            });
+
+            saveData();
+            showToast('Attendance marked for ' + selected.length + ' students', 'success');
+            closeModal('markAttendanceModal');
+            loadAttendance();
+            loadDashboard();
+        }
+
+        function openBulkAttendance() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    showToast('Processing bulk upload...', 'success');
+                    setTimeout(() => {
+                        showToast('Bulk upload completed!', 'success');
+                    }, 1500);
+                }
+            };
+            input.click();
+        }
+
+        function deleteAttendance(id) {
+            if (confirm('Delete this attendance record?')) {
+                attendance = attendance.filter(a => a.id !== id);
+                saveData();
+                showToast('Attendance record deleted', 'success');
+                loadAttendance();
+                loadDashboard();
+            }
+        }
+
+        // Users
+        function loadUsers() {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                    <td><span class="user-badge">${u.role}</span></td>
+                    <td>
+                        <button class="btn-icon" onclick="deleteUser('${u.id}')" title="Delete" style="background: #ef4444; color: white; width: 35px; height: 35px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddUser() {
+            document.getElementById('addUserModal').classList.add('active');
+        }
+
+        function saveUser() {
+            const name = document.getElementById('newUserName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const username = document.getElementById('newUserUsername').value;
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+
+            if (!name || !email || !username || !password) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+
+            if (users.find(u => u.username === username)) {
+                showToast('Username already exists', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: 'u' + Date.now(),
+                username,
+                password,
+                name,
+                email,
+                role
+            };
+
+            users.push(newUser);
+            saveData();
+            showToast('User added successfully!', 'success');
+            closeModal('addUserModal');
+            loadUsers();
+
+            // Clear form
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserUsername').value = '';
+            document.getElementById('newUserPassword').value = '';
+        }
+
+        function deleteUser(id) {
+            if (id === currentUser.id) {
+                showToast('Cannot delete current user', 'error');
+                return;
+            }
+            if (confirm('Delete this user?')) {
+                users = users.filter(u => u.id !== id);
+                saveData();
+                showToast('User deleted', 'success');
+                loadUsers();
+            }
+        }
+
+        // Reports
+        function loadReports() {
+            const dateMap = {};
+            attendance.forEach(a => {
+                if (!dateMap[a.date]) {
+                    dateMap[a.date] = { present: 0, absent: 0 };
+                }
+                if (a.status === 'present') dateMap[a.date].present++;
+                else dateMap[a.date].absent++;
+            });
+
+            const tbody = document.getElementById('reportsTable');
+            tbody.innerHTML = Object.keys(dateMap).sort().reverse().slice(0, 10).map(date => {
+                const data = dateMap[date];
+                const total = data.present + data.absent;
+                const rate = total > 0 ? Math.round((data.present / total) * 100) : 0;
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${data.present}</td>
+                        <td>${data.absent}</td>
+                        <td>${total}</td>
+                        <td>${rate}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function generateReport() {
+            showToast('Generating report...', 'success');
+            setTimeout(() => {
+                showToast('Report generated successfully!', 'success');
+            }, 1500);
+        }
+
+        function exportData() {
+            let csv = 'Student ID,Name,Class,Date,Status\n';
+            attendance.forEach(a => {
+                const student = students.find(s => s.id === a.studentId);
+                if (student) {
+                    csv += `${a.studentId},${student.name},${student.class},${a.date},${a.status}\n`;
+                }
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'attendance_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Data exported successfully!', 'success');
+        }
+
+        // Notifications
+        function loadNotifications() {
+            const div = document.getElementById('notificationsList');
+            if (notifications.length === 0) {
+                div.innerHTML = '<p style="color: #64748b;">No notifications yet.</p>';
+            } else {
+                div.innerHTML = notifications.map(n => `
+                    <div style="padding: 15px; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <strong>${n.recipients}</strong>
+                            <span style="color: #64748b; font-size: 13px;">${n.time}</span>
+                        </div>
+                        <p style="color: #64748b;">${n.message}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openSendNotification() {
+            document.getElementById('sendNotificationModal').classList.add('active');
+        }
+
+        function sendNotification() {
+            const recipients = document.getElementById('notifRecipients').value;
+            const message = document.getElementById('notifMessage').value;
+
+            if (!message) {
+                showToast('Please enter a message', 'error');
+                return;
+            }
+
+            const notification = {
+                id: 'n' + Date.now(),
+                recipients,
+                message,
+                time: new Date().toLocaleString()
+            };
+
+            notifications.unshift(notification);
+            saveData();
+            showToast('Notification sent successfully!', 'success');
+            closeModal('sendNotificationModal');
+            loadNotifications();
+
+            document.getElementById('notifMessage').value = '';
+        }
+
+        // Modals
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
