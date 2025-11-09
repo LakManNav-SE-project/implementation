@@ -1,0 +1,120 @@
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .nav-menu {
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+    }
+    
+    .nav-item {
+        padding: 16px 20px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+    }
+    
+    .nav-item.active {
+        border-left: none;
+        border-bottom-color: var(--primary-color);
+    }
+    
+    .sidebar-footer {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        height: 60px;
+    }
+    
+    .header-center {
+        display: none;
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    .content {
+        padding: 16px;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .page-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        min-width: auto;
+    }
+    
+    .attendance-controls {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .filter-group,
+    .search-group {
+        width: 100%;
+    }
+    
+    .attendance-table-container {
+        overflow-x: auto;
+    }
+    
+    .attendance-table {
+        min-width: 800px;
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        padding: 24px;
+        margin: 0 16px;
+    }
+    
+    .login-header h1 {
+        font-size: 2rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 0 16px;
+    }
+    
+    .toast {
+        min-width: auto;
+        width: calc(100vw - 40px);
+    }
+}
